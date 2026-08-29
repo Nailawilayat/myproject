@@ -9,6 +9,7 @@ use App\Http\Controllers\PricingController;
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\AdminController;
 use App\Models\Pricing;
 
 
@@ -19,9 +20,11 @@ use App\Models\Pricing;
 */
 
 Route::get('/', function () {
+
     $pricings = Pricing::all();
 
     return view('welcome', compact('pricings'));
+
 })->name('home');
 
 
@@ -72,10 +75,6 @@ Route::get('/logout', [StudentController::class, 'logout'])
 |--------------------------------------------------------------------------
 | LOGIN REDIRECT
 |--------------------------------------------------------------------------
-|
-|
-|
-|
 */
 
 Route::get('/login-redirect', function () {
@@ -91,12 +90,38 @@ Route::get('/login-redirect', function () {
 })->name('login.redirect');
 
 
+/*
+|--------------------------------------------------------------------------
+| ADMIN
+|--------------------------------------------------------------------------
+|
+| Only authenticated users with admin role can access these routes.
+|
+*/
+
+Route::middleware(['auth', 'role:admin'])
+    ->prefix('admin')
+    ->group(function () {
+
+        // Admin Dashboard
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])
+            ->name('admin.dashboard');
+
+        // Courses Management
+        Route::resource('courses', CourseController::class);
+
+        // Books Management
+        Route::resource('books', BookController::class);
+    });
 
 
 /*
 |--------------------------------------------------------------------------
 | BOOKS
 |--------------------------------------------------------------------------
+|
+| Books are accessible only to logged-in students/users.
+|
 */
 
 Route::middleware('student.auth')->group(function () {
@@ -130,7 +155,7 @@ Route::get('/courses/{slug}', [CourseController::class, 'show'])
 | LESSON PDF
 |--------------------------------------------------------------------------
 |
-| 
+| Only logged-in students/users can access lesson PDFs.
 |
 */
 
