@@ -158,6 +158,8 @@ class StudentController extends Controller
                 $validated['password']
             ),
 
+            'role' => 'student',
+
             'phone' => $cleanPhone,
 
             'gender' => $validated['gender'],
@@ -236,7 +238,89 @@ class StudentController extends Controller
 
 
         // -------------------------------------------------
-        // FIND STUDENT
+        // CHECK ADMIN FIRST
+        // -------------------------------------------------
+
+        $admin = DB::table('admins')
+            ->where('email', $request->email)
+            ->first();
+
+        if ($admin && Hash::check($request->password, $admin->password)) {
+
+            $request->session()->regenerate();
+
+            $request->session()->put(
+                'student_id',
+                $admin->id
+            );
+
+            $request->session()->put(
+                'student_name',
+                $admin->name
+            );
+
+            $request->session()->put(
+                'student_email',
+                $admin->email
+            );
+
+            $request->session()->put(
+                'student_role',
+                'admin'
+            );
+
+            return redirect()
+                ->route('admin.dashboard')
+                ->with(
+                    'success',
+                    'Welcome Admin ' . $admin->name . '!'
+                );
+        }
+
+
+        // -------------------------------------------------
+        // CHECK TEACHER
+        // -------------------------------------------------
+
+        $teacher = DB::table('teachers')
+            ->where('email', $request->email)
+            ->first();
+
+        if ($teacher && Hash::check($request->password, $teacher->password)) {
+
+            $request->session()->regenerate();
+
+            $request->session()->put(
+                'student_id',
+                $teacher->id
+            );
+
+            $request->session()->put(
+                'student_name',
+                $teacher->name
+            );
+
+            $request->session()->put(
+                'student_email',
+                $teacher->email
+            );
+
+            $request->session()->put(
+                'student_role',
+                'teacher'
+            );
+
+            return redirect()
+                ->route('teacher.dashboard')
+                ->with(
+                    'success',
+                    'Welcome Teacher ' . $teacher->name . '!'
+                );
+        }
+
+
+        // -------------------------------------------------
+        // FIND STUDENT (NORMAL USER)
         // -------------------------------------------------
 
         $student = DB::table('students')
@@ -292,9 +376,14 @@ class StudentController extends Controller
             $student->email
         );
 
+        $request->session()->put(
+            'student_role',
+            $student->role
+        );
+
 
         // -------------------------------------------------
-        // GET INTENDED URL
+        // NORMAL USER (STUDENT) REDIRECT
         // -------------------------------------------------
         //
         // PDF se login:
@@ -310,11 +399,6 @@ class StudentController extends Controller
         $redirectUrl = $request->session()->pull(
             'intended_url'
         );
-
-
-        // -------------------------------------------------
-        // DEFAULT = HOME
-        // -------------------------------------------------
 
         if (!$redirectUrl) {
 
@@ -352,9 +436,7 @@ class StudentController extends Controller
         return redirect($redirectUrl)
             ->with(
                 'success',
-                'Welcome ' .
-                $student->name .
-                '! Login successful.'
+                'Welcome ' . $student->name . '! Login successful.'
             );
     }
 
@@ -370,6 +452,7 @@ class StudentController extends Controller
             'student_id',
             'student_name',
             'student_email',
+            'student_role',
             'intended_url'
         ]);
 
@@ -382,4 +465,3 @@ class StudentController extends Controller
             );
     }
 }
-

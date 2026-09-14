@@ -5,12 +5,12 @@
         <!-- LOGO -->
         <div class="footer-logo text-center mb-4">
 
-            <img src="{{ asset('images/logo.png') }}"
-                 alt="Sultana Quran Academy"
+            <img src="{{ !empty($siteSettings['site_logo']) ? asset($siteSettings['site_logo']) : asset('images/logo.png') }}"
+                 alt="{{ $siteSettings['site_name'] ?? 'Sultana Quran Academy' }}"
                  style="width:180px;height:180px;border-radius:50%;object-fit:cover;">
 
             <h3 class="text-white mt-3 fw-bold">
-                Sultana Quran Academy
+                {{ $siteSettings['site_name'] ?? 'Sultana Quran Academy' }}
             </h3>
 
             <p class="text-light">
@@ -32,15 +32,15 @@
 
                     <li>
                         <i class="fas fa-phone"></i>
-                        <a href="tel:+923433367079">
-                            +92 343 3367079
+                        <a href="tel:{{ $siteSettings['contact_phone'] ?? '+923433367079' }}">
+                            {{ $siteSettings['contact_phone'] ?? '+92 343 3367079' }}
                         </a>
                     </li>
 
                     <li>
                         <i class="fas fa-envelope"></i>
-                        <a href="mailto:info@sultanaquranacademy.com">
-                            info@sultanaquranacademy.com
+                        <a href="mailto:{{ $siteSettings['contact_email'] ?? 'info@sultanaquranacademy.com' }}">
+                            {{ $siteSettings['contact_email'] ?? 'info@sultanaquranacademy.com' }}
                         </a>
                     </li>
 
@@ -53,7 +53,7 @@
 
                     <li>
                         <i class="fas fa-location-dot"></i>
-                        Online Quran Classes Worldwide
+                        {{ $siteSettings['address'] ?? 'Online Quran Classes Worldwide' }}
                     </li>
 
                 </ul>
@@ -201,7 +201,7 @@
         <div class="footer-bottom text-center pt-3 border-top">
 
             <p class="mb-0 text-light">
-                © {{ date('Y') }} Sultana Quran Academy.
+                © {{ date('Y') }} {{ $siteSettings['site_name'] ?? 'Sultana Quran Academy' }}.
                 All Rights Reserved.
             </p>
 

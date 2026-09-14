@@ -69,10 +69,6 @@
                         <span>Remember me</span>
                     </label>
 
-                    <a href="#">
-                        Lost your password?
-                    </a>
-
                 </div>
 
 

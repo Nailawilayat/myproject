@@ -164,9 +164,6 @@
 
     </div>
 </section>
-
-
-</style>
 </div>
 
 </div>

@@ -17,8 +17,15 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
-    {
-        //
-    }
+   public function boot(): void
+{
+    view()->composer('*', function ($view) {
+
+        $settings = \Illuminate\Support\Facades\DB::table('settings')
+            ->pluck('value', 'key');
+
+        $view->with('siteSettings', $settings);
+
+    });
+}
 }

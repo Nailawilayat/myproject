@@ -591,6 +591,7 @@
         </div>
     </div>
 </section>
+
 <section class="our-goal">
     <div class="overlay"></div>
     <div class="container content">

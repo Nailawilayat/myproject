@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('students', function (Blueprint $table) {
-            $table->string('role')->default('student')->after('password');
+        Schema::table('admins', function (Blueprint $table) {
+            $table->string('name')->after('id');
+            $table->string('email')->unique()->after('name');
+            $table->string('password')->after('email');
         });
     }
 
@@ -21,8 +23,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('students', function (Blueprint $table) {
-            $table->dropColumn('role');
+        Schema::table('admins', function (Blueprint $table) {
+            $table->dropColumn(['name', 'email', 'password']);
         });
     }
 };

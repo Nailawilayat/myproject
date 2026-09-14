@@ -46,3 +46,4 @@ class RoleSeeder extends Seeder
         $admin->syncPermissions(Permission::all());
     }
 }
+
