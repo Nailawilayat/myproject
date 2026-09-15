@@ -2,6 +2,18 @@
 
 <link rel="stylesheet" href="{{ asset('css/books.css') }}">
 
+@php
+    function resolveBookImagePath($path) {
+        if (empty($path)) return asset('images/no-image.png'); // fallback, optional
+
+        if (str_starts_with($path, 'books/')) {
+            return asset('storage/' . $path);
+        }
+
+        return asset('images/' . $path);
+    }
+@endphp
+
 {{-- ==================== BOOKS BANNER ==================== --}}
 <section class="page-banner">
     <div class="overlay"></div>
@@ -28,7 +40,7 @@
                         <div class="col-md-6">
                             <div class="book-card h-100">
                                 <div class="book-card-img">
-                                    <img src="{{ asset('images/'.$book->image) }}" alt="{{ $book->title }}">
+                                    <img src="{{ resolveBookImagePath($book->image) }}" alt="{{ $book->title }}">
                                 </div>
                                 <div class="book-card-content">
                                     <h5 class="book-card-title">{{ $book->title }}</h5>
@@ -64,7 +76,7 @@
                         <h6 class="widget-title">RECENT BOOKS</h6>
                         @foreach (collect($books)->take(3) as $recent)
                             <div class="blog-item d-flex mb-3">
-                                <img src="{{ asset('images/'.$recent->image) }}" width="70" height="70" style="object-fit:cover; border-radius:8px;">
+                                <img src="{{ resolveBookImagePath($recent->image) }}" width="70" height="70" style="object-fit:cover; border-radius:8px;">
                                 <div class="ms-3">
                                     <h6 class="mb-1"><a href="{{ route('books.show', $recent->slug) }}" class="recent-post-link">{{ Str::limit($recent->title, 40) }}</a></h6>
                                 </div>

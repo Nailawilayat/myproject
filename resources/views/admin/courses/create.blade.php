@@ -30,8 +30,10 @@
 
         <div class="card-body">
 
-            <form action="{{ route('admin.courses.store') }}" method="POST">
+            <form action="{{ route('admin.courses.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
+
+                <h6 class="fw-bold mb-3 text-muted">Course Details</h6>
 
                 <div class="row">
 
@@ -85,14 +87,31 @@
                         </select>
                     </div>
 
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Course Image</label>
+                        <input type="file" name="image"
+                               class="form-control @error('image') is-invalid @enderror"
+                               accept="image/*">
+                        <small class="text-muted">Recommended size: 800x600px. Max 2MB.</small>
+                        @error('image')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
                     <div class="col-12 mb-3">
                         <label class="form-label">Overview</label>
                         <textarea name="overview" class="form-control" rows="4">{{ old('overview') }}</textarea>
                     </div>
 
-                    <div class="col-12">
-                        <hr class="my-3">
-                    </div>
+                </div>
+
+                <div class="col-12">
+                    <hr class="my-4">
+                </div>
+
+                <h6 class="fw-bold mb-3 text-muted">Teacher Details</h6>
+
+                <div class="row">
 
                     <div class="col-md-4 mb-3">
                         <label class="form-label">Teacher Name</label>
@@ -107,13 +126,23 @@
                     </div>
 
                     <div class="col-md-4 mb-3">
+                        <label class="form-label">Teacher Image</label>
+                        <input type="file" name="teacher_image"
+                               class="form-control @error('teacher_image') is-invalid @enderror"
+                               accept="image/*">
+                        @error('teacher_image')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="col-12 mb-3">
                         <label class="form-label">Teacher Bio</label>
                         <input type="text" name="teacher_bio" class="form-control"
                                value="{{ old('teacher_bio') }}">
                     </div>
 
                     <div class="col-md-6 mb-3">
-                        <div class="form-check mt-4">
+                        <div class="form-check mt-2">
                             <input type="checkbox" name="featured" value="1" class="form-check-input"
                                    id="featured" {{ old('featured') ? 'checked' : '' }}>
                             <label class="form-check-label" for="featured">

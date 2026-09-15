@@ -2,6 +2,20 @@
 
 <link rel="stylesheet" href="{{ asset('css/books.css') }}">
 
+@php
+    function resolveBookPath($path, $type) {
+        if (empty($path)) return null;
+
+        if (str_starts_with($path, 'books/')) {
+            return asset('storage/' . $path);
+        }
+
+        return $type === 'pdf'
+            ? asset('pdfs/' . $path)
+            : asset('images/' . $path);
+    }
+@endphp
+
 {{-- ==================== BOOK DETAIL BANNER ==================== --}}
 <section class="page-banner">
     <div class="overlay"></div>
@@ -72,7 +86,7 @@
                         <h6 class="widget-title">RECENT BOOKS</h6>
                         @foreach ($allBooks->take(3) as $recent)
                             <div class="blog-item d-flex mb-3">
-                                <img src="{{ asset('images/'.$recent->image) }}"
+                                <img src="{{ resolveBookPath($recent->image, 'image') }}"
                                      width="70" height="70"
                                      style="object-fit:cover; border-radius:8px;"
                                      alt="{{ $recent->title }}">
@@ -117,7 +131,7 @@
 @include('partials.pdf-reader-scripts')
 
 <script>
-    initPdfReader("{{ asset('pdfs/'.$book->pdf) }}");
+    initPdfReader("{{ resolveBookPath($book->pdf, 'pdf') }}");
 </script>
 
 @include('layouts.footer')

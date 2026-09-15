@@ -373,103 +373,83 @@ public function assignedCourses()
     {
         return view('admin.courses.create');
     }
+public function storeCourse(Request $request)
+{
+    $validated = $request->validate([
 
+        'title' => 'required|string|max:255',
+        'short_title' => 'nullable|string|max:255',
+        'category' => 'nullable|string|max:255',
+        'duration' => 'nullable|string|max:100',
+        'level' => 'nullable|string|max:50',
+        'language' => 'nullable|string|max:100',
+        'status' => 'nullable|integer',
+        'overview' => 'nullable|string',
+        'teacher' => 'nullable|string|max:255',
+        'teacher_designation' => 'nullable|string|max:255',
+        'teacher_bio' => 'nullable|string',
+        'featured' => 'nullable|boolean',
 
-    public function storeCourse(Request $request)
-    {
-        $validated = $request->validate([
+        'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+        'teacher_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
 
-            'title' => 'required|string|max:255',
+    ]);
 
-            'short_title' => 'nullable|string|max:255',
+    $slug = Str::slug($validated['title']);
 
-            'category' => 'nullable|string|max:255',
+    /*
+    |--------------------------------------------------------------------------
+    | Upload Course Image
+    |--------------------------------------------------------------------------
+    */
 
-            'duration' => 'nullable|string|max:100',
+    $imagePath = '';
 
-            'level' => 'nullable|string|max:50',
-
-            'language' => 'nullable|string|max:100',
-
-            'status' => 'nullable|integer',
-
-            'overview' => 'nullable|string',
-
-            'teacher' => 'nullable|string|max:255',
-
-            'teacher_designation' => 'nullable|string|max:255',
-
-            'teacher_bio' => 'nullable|string',
-
-            'featured' => 'nullable|boolean',
-
-        ]);
-
-
-        $slug = Str::slug(
-            $validated['title']
-        );
-
-
-        DB::table('courses')->insert([
-
-            'status' => $validated['status'] ?? 1,
-
-            'title' => $validated['title'],
-
-            'slug' => $slug,
-
-            'short_title' => $validated['short_title'] ?? '',
-
-            'image' => '',
-
-            'overview' => $validated['overview'] ?? null,
-
-            'teacher' => $validated['teacher'] ?? null,
-
-            'teacher_designation' =>
-                $validated['teacher_designation'] ?? null,
-
-            'teacher_bio' =>
-                $validated['teacher_bio'] ?? null,
-
-            'teacher_image' => '',
-
-            'category' =>
-                $validated['category'] ?? null,
-
-            'duration' =>
-                $validated['duration'] ?? null,
-
-            'level' =>
-                $validated['level'] ?? null,
-
-            'language' =>
-                $validated['language'] ?? null,
-
-            'students' => 0,
-
-            'lectures' => 0,
-
-            'quizzes' => 0,
-
-            'featured' =>
-                $request->has('featured') ? 1 : 0,
-
-            'created_at' => now(),
-
-            'updated_at' => now(),
-
-        ]);
-
-
-        return redirect()
-            ->route('admin.courses')
-            ->with(
-                'success',
-                'Course added successfully.'
-            );
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('courses/images', 'public');
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Upload Teacher Image
+    |--------------------------------------------------------------------------
+    */
+
+    $teacherImagePath = '';
+
+    if ($request->hasFile('teacher_image')) {
+        $teacherImagePath = $request->file('teacher_image')->store('courses/teachers', 'public');
+    }
+
+    DB::table('courses')->insert([
+
+        'status' => $validated['status'] ?? 1,
+        'title' => $validated['title'],
+        'slug' => $slug,
+        'short_title' => $validated['short_title'] ?? '',
+        'image' => $imagePath,
+        'overview' => $validated['overview'] ?? null,
+        'teacher' => $validated['teacher'] ?? null,
+        'teacher_designation' => $validated['teacher_designation'] ?? null,
+        'teacher_bio' => $validated['teacher_bio'] ?? null,
+        'teacher_image' => $teacherImagePath,
+        'category' => $validated['category'] ?? null,
+        'duration' => $validated['duration'] ?? null,
+        'level' => $validated['level'] ?? null,
+        'language' => $validated['language'] ?? null,
+        'students' => 0,
+        'lectures' => 0,
+        'quizzes' => 0,
+        'featured' => $request->has('featured') ? 1 : 0,
+        'created_at' => now(),
+        'updated_at' => now(),
+
+    ]);
+
+    return redirect()
+        ->route('admin.courses')
+        ->with('success', 'Course added successfully.');
+}
 
 
     /*

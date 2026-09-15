@@ -23,33 +23,44 @@ class CourseController extends Controller
     /**
      * SINGLE COURSE PAGE
      */
-    public function show($slug)
-    {
-        $course = Course::with(['curriculum', 'reviews'])
-            ->where('slug', $slug)
-            ->firstOrFail();
+  public function show($slug)
+{
+    $course = Course::with(['curriculum', 'reviews'])
+        ->where('slug', $slug)
+        ->firstOrFail();
 
-        $popularCourses = Course::where('id', '!=', $course->id)
-            ->where('status', 1)
-            ->with('reviews')
-            ->latest()
-            ->take(3)
-            ->get();
+    $popularCourses = Course::where('id', '!=', $course->id)
+        ->where('status', 1)
+        ->with('reviews')
+        ->latest()
+        ->take(3)
+        ->get();
 
-        $relatedCourses = Course::where('id', '!=', $course->id)
-            ->where('status', 1)
-            ->with('reviews')
-            ->latest()
-            ->take(3)
-            ->get();
+    $relatedCourses = Course::where('id', '!=', $course->id)
+        ->where('status', 1)
+        ->with('reviews')
+        ->latest()
+        ->take(3)
+        ->get();
 
-        return view('courses.' . $slug, compact(
+    // Agar us course ka custom design page exist karta hai, wahi use karo
+    $customView = 'courses.' . $slug;
+
+    if (view()->exists($customView)) {
+        return view($customView, compact(
             'course',
             'popularCourses',
             'relatedCourses'
         ));
     }
 
+    // Warna generic template use karo (naye admin-added courses ke liye)
+    return view('courses.show', compact(
+        'course',
+        'popularCourses',
+        'relatedCourses'
+    ));
+}
     /**
      * COURSE APPLICATION
      */
