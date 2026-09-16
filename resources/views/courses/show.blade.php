@@ -1,189 +1,419 @@
 @include('layouts.header')
+@include('layouts.hero')
 
-@php
-    function resolveImagePath($path) {
-        if (empty($path)) return null;
-        return str_starts_with($path, 'courses/')
-            ? asset('storage/' . $path)
-            : asset($path);
-    }
-@endphp
+<link rel="stylesheet" href="{{ asset('css/style.css') }}">
+<link rel="stylesheet" href="{{ asset('css/course-page.css') }}">
 
-<section class="page-banner">
-    <div class="overlay"></div>
-    <div class="container content position-relative">
-        <h1 class="banner-title">{{ $course->title }}</h1>
-        <div class="breadcrumb-wrap">
-            <a href="{{ url('/') }}">Home</a> /
-            <a href="{{ url('/courses') }}">Courses</a> /
-            <span>{{ $course->title }}</span>
-        </div>
-    </div>
-</section>
+<div class="container-fluid position-relative mt-4">
 
-<section class="py-5">
-    <div class="container">
+    <div class="row gy-4">
 
-        <div class="row">
+        <!-- LEFT CONTENT -->
+        <div class="col-lg-8">
 
-            <div class="col-lg-8">
+            <div class="breadcrumb-wrap">
 
-                @if($course->image)
-                    <img src="{{ resolveImagePath($course->image) }}"
-                         alt="{{ $course->title }}"
-                         class="img-fluid rounded mb-4 course-main-image">
-                @endif
+                <h2 class="fw-bold mb-3">
+                    {{ $course->title }}
+                </h2>
 
-                <h3 class="fw-bold mb-3">{{ $course->title }}</h3>
+                <!-- Info -->
+                <div class="d-flex flex-wrap gap-4 text-muted mb-3">
+                    <div>
+                        <strong>Teacher</strong><br>
+                        {{ $course->teacher ?? 'N/A' }}
+                    </div>
 
-                <div class="d-flex flex-wrap gap-3 mb-4 text-muted">
-                    <span><i class="bi bi-tag-fill me-1"></i>{{ $course->category ?? 'General' }}</span>
-                    @if($course->level)
-                        <span><i class="bi bi-bar-chart-fill me-1"></i>{{ ucfirst($course->level) }}</span>
-                    @endif
-                    @if($course->duration)
-                        <span><i class="bi bi-clock-fill me-1"></i>{{ $course->duration }}</span>
-                    @endif
-                    @if($course->language)
-                        <span><i class="bi bi-translate me-1"></i>{{ $course->language }}</span>
-                    @endif
+                    <div>
+                        <strong>Category</strong><br>
+                        {{ $course->category ?? 'General' }}
+                    </div>
+
+                    <div>
+                        <strong>Review</strong><br>
+                        @php
+                            $avgRating = ($course->reviews && $course->reviews->count())
+                                ? round($course->reviews->avg('rating'))
+                                : 0;
+                        @endphp
+                        @for($i = 1; $i <= 5; $i++)
+                            {{ $i <= $avgRating ? '⭐' : '☆' }}
+                        @endfor
+                    </div>
                 </div>
 
-                @if($course->overview)
-                    <div class="content-card mb-4">
-                        <h5 class="fw-bold mb-3">Course Overview</h5>
-                        <p style="line-height: 1.8;">{{ $course->overview }}</p>
-                    </div>
-                @endif
-
-                @if($course->teacher)
-                    <div class="teacher-card mb-4">
-
-                        @if($course->teacher_image)
-                            <img src="{{ resolveImagePath($course->teacher_image) }}" alt="{{ $course->teacher }}">
-                        @else
-                            <div class="d-flex align-items-center justify-content-center bg-light rounded-circle"
-                                 style="width:140px; height:140px;">
-                                <i class="bi bi-person-fill" style="font-size: 50px; color: #ccc;"></i>
-                            </div>
-                        @endif
-
-                        <div>
-                            <h5 class="fw-bold mb-1">{{ $course->teacher }}</h5>
-                            <p class="text-muted mb-2">{{ $course->teacher_designation }}</p>
-                            @if($course->teacher_bio)
-                                <p class="mb-0">{{ $course->teacher_bio }}</p>
-                            @endif
-                        </div>
-
-                    </div>
-                @endif
-
-                {{-- REVIEWS --}}
-                @if($course->reviews && $course->reviews->count() > 0)
-                    <div class="content-card mt-4">
-                        <h5 class="fw-bold mb-3">Student Reviews</h5>
-
-                        @foreach($course->reviews as $review)
-                            <div class="review-card mb-3">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <strong>{{ $review->name }}</strong>
-                                    <span class="text-warning">
-                                        @for($i = 1; $i <= 5; $i++)
-                                            <i class="bi bi-star{{ $i <= $review->rating ? '-fill' : '' }}"></i>
-                                        @endfor
-                                    </span>
-                                </div>
-                                <p class="mb-0">{{ $review->comment }}</p>
-                            </div>
-                        @endforeach
-
-                    </div>
+                <!-- Main Image -->
+                @if($course->image)
+                    <img src="{{ resolveMediaPath($course->image, 'image') }}"
+                         class="course-main-image img-fluid rounded shadow w-100"
+                         alt="{{ $course->title }}">
                 @endif
 
             </div>
 
-            <div class="col-lg-4">
+        </div>
 
-                <div class="sidebar-card mb-4">
+        <!-- RIGHT SIDEBAR -->
+        <div class="col-lg-4">
 
-                    <h5 class="sidebar-title">Course Features</h5>
+            {{-- POPULAR COURSES --}}
+            <div class="sidebar-widget mb-4">
+                <h6 class="widget-title">POPULAR COURSES</h6>
 
-                    <ul class="course-info-list">
-                        <li>
-                            <span><i class="bi bi-camera-video-fill"></i> Lectures</span>
-                            <strong>{{ $course->lectures ?? 0 }}</strong>
-                        </li>
-                        <li>
-                            <span><i class="bi bi-patch-question-fill"></i> Quizzes</span>
-                            <strong>{{ $course->quizzes ?? 0 }}</strong>
-                        </li>
-                        <li>
-                            <span><i class="bi bi-people-fill"></i> Students</span>
-                            <strong>{{ $course->students ?? 0 }}</strong>
-                        </li>
-                        <li>
-                            <span><i class="bi bi-bar-chart-fill"></i> Level</span>
-                            <strong>{{ ucfirst($course->level ?? 'N/A') }}</strong>
-                        </li>
-                    </ul>
+                @forelse($popularCourses as $pc)
 
-                    <a href="{{ url('/apply') }}" class="btn btn-gold w-100 mt-3">
-                        Apply Now
+                    @php
+                        $pcAvgRating = ($pc->reviews && $pc->reviews->count())
+                            ? round($pc->reviews->avg('rating'))
+                            : 5;
+                    @endphp
+
+                    <a href="{{ url('/courses/'.$pc->slug) }}" class="text-decoration-none text-dark">
+                        <div class="blog-item d-flex mb-3">
+
+                            @if($pc->image)
+                                <img src="{{ resolveMediaPath($pc->image, 'image') }}"
+                                     width="70"
+                                     height="70"
+                                     style="object-fit:cover;"
+                                     class="me-3 rounded flex-shrink-0">
+                            @endif
+
+                            <div class="ms-1">
+                                <h6 class="mb-1 recent-post-link">{{ $pc->short_title ?? $pc->title }}</h6>
+                                <span class="text-warning small">
+                                    @for($i = 1; $i <= 5; $i++)
+                                        {{ $i <= $pcAvgRating ? '⭐' : '☆' }}
+                                    @endfor
+                                </span>
+                                <br>
+                                <span class="text-success small">Free</span>
+                            </div>
+                        </div>
                     </a>
 
-                </div>
+                @empty
 
-                @if($popularCourses->count() > 0)
-                    <div class="sidebar-card popular-courses-sticky">
-                        <h5 class="sidebar-title">Popular Courses</h5>
+                    <p class="text-muted mb-0">No popular courses found.</p>
 
-                        @foreach($popularCourses as $popular)
-                            <a href="{{ url('/courses/' . $popular->slug) }}"
-                               class="d-block mb-3 text-decoration-none text-dark">
-                                <strong>{{ $popular->title }}</strong>
-                                <br>
-                                <small class="text-muted">{{ $popular->category ?? 'General' }}</small>
-                            </a>
-                        @endforeach
+                @endforelse
 
+            </div>
+
+            {{-- COURSE FEATURES --}}
+            <div class="sidebar-widget mb-4">
+                <h6 class="widget-title">COURSE FEATURES</h6>
+
+                <div class="course-features-box">
+
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span class="text-primary">📄 Lectures</span>
+                        <strong>{{ $course->lectures ?? 0 }}</strong>
                     </div>
-                @endif
+
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span class="text-danger">🧩 Quizzes</span>
+                        <strong>{{ $course->quizzes ?? 0 }}</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span class="text-warning">⏱ Duration</span>
+                        <strong>{{ $course->duration ?? 'N/A' }}</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span class="text-info">📶 Skill level</span>
+                        <strong>{{ ucfirst($course->level ?? 'N/A') }}</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span class="text-secondary">🌐 Language</span>
+                        <strong>{{ $course->language ?? 'N/A' }}</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <span class="text-danger">👥 Students</span>
+                        <strong>{{ $course->students ?? 0 }}</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center py-2">
+                        <span class="text-success">✅ Assessments</span>
+                        <strong>{{ ($course->quizzes ?? 0) > 0 ? 'Yes' : 'No' }}</strong>
+                    </div>
+
+                </div>
 
             </div>
 
         </div>
 
-        @if($relatedCourses->count() > 0)
-            <div class="mt-5">
-                <h4 class="fw-bold mb-4">You May Like</h4>
+    </div>
 
-                <div class="row g-4">
-                    @foreach($relatedCourses as $related)
-                        <div class="col-md-4">
-                            <div class="course-card h-100">
+</div>
 
-                                @if($related->image)
-                                    <img src="{{ resolveImagePath($related->image) }}"
-                                         class="course-img w-100" alt="{{ $related->title }}">
-                                @endif
 
-                                <div class="p-3">
-                                    <h6 class="fw-bold">{{ $related->title }}</h6>
-                                    <a href="{{ url('/courses/' . $related->slug) }}"
-                                       class="btn btn-sm btn-gold mt-2">
-                                        View Course
-                                    </a>
+{{-- TABS SECTION --}}
+<div class="container-fluid mt-5">
+    <div class="row">
+
+        <div class="col-12">
+            <ul class="nav nav-tabs fw-bold flex-nowrap overflow-auto" id="courseTabs">
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#overview">Overview</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#curriculum">Curriculum</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#instructor">Instructor</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#reviews">Reviews</a>
+                </li>
+            </ul>
+
+            <div class="tab-content mt-4">
+
+                {{-- OVERVIEW TAB --}}
+                <div class="tab-pane fade show active" id="overview">
+
+                    @if($course->overview)
+                        <p style="line-height: 1.8;">{{ $course->overview }}</p>
+                    @else
+                        <p class="text-muted">No overview available for this course yet.</p>
+                    @endif
+
+                </div>
+
+                {{-- CURRICULUM TAB --}}
+                <div class="tab-pane fade" id="curriculum">
+
+                    <h4 class="fw-bold mb-4">Course Curriculum</h4>
+
+                    <div class="accordion custom-accordion" id="curriculumAccordion">
+
+                        @forelse(($course->curriculum ?? collect()) as $item)
+
+                            <div class="accordion-item border-0 shadow-sm rounded mb-3 overflow-hidden">
+
+                                <h2 class="accordion-header" id="heading{{ $item->id }}">
+                                    <button
+                                        class="accordion-button collapsed fw-bold"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#lesson{{ $item->id }}"
+                                        aria-expanded="false"
+                                        aria-controls="lesson{{ $item->id }}">
+                                        {{ $item->title }}
+                                    </button>
+                                </h2>
+
+                                <div id="lesson{{ $item->id }}"
+                                     class="accordion-collapse collapse"
+                                     data-bs-parent="#curriculumAccordion">
+
+                                    <div class="accordion-body">
+
+                                        @if($item->pdf_file)
+
+                                            @if(session('student_id'))
+                                                <a href="{{ route('lesson.pdf', ['file' => $item->pdf_file]) }}"
+                                                   class="btn btn-danger fw-bold"
+                                                   target="_blank">
+                                                    📄 Open PDF
+                                                </a>
+                                            @else
+                                                <a href="{{ route('lesson.pdf', ['file' => $item->pdf_file]) }}"
+                                                   class="btn btn-danger fw-bold"
+                                                   onclick="showPdfLoginAlert(event, this.href)">
+                                                    📄 Open PDF
+                                                </a>
+                                            @endif
+
+                                        @else
+                                            <p class="text-muted mb-0">No file attached for this lesson.</p>
+                                        @endif
+
+                                    </div>
                                 </div>
 
                             </div>
-                        </div>
-                    @endforeach
+
+                        @empty
+
+                            <p class="text-muted">No curriculum added yet.</p>
+
+                        @endforelse
+
+                    </div>
+
                 </div>
+
+                {{-- INSTRUCTOR TAB --}}
+                <div class="tab-pane fade" id="instructor">
+
+                    @if($course->teacher)
+
+                        <div class="d-flex flex-wrap align-items-center gap-4 mt-3">
+
+                            @if($course->teacher_image)
+                                <img src="{{ resolveMediaPath($course->teacher_image, 'image') }}"
+                                     class="rounded-circle" width="80" height="80"
+                                     style="object-fit: cover;">
+                            @else
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode($course->teacher) }}&size=80&background=orange&color=fff"
+                                     class="rounded-circle" width="80" height="80">
+                            @endif
+
+                            <div>
+                                <h5 class="fw-bold mb-1">{{ $course->teacher }}</h5>
+                                <p class="text-muted mb-1">{{ $course->teacher_designation ?? '' }}</p>
+                                <p>{{ $course->teacher_bio ?? '' }}</p>
+                            </div>
+
+                        </div>
+
+                    @else
+
+                        <p class="text-muted">Instructor information not available yet.</p>
+
+                    @endif
+
+                </div>
+
+                {{-- REVIEWS TAB --}}
+                <div class="tab-pane fade" id="reviews">
+
+                    <h5 class="fw-bold mb-3">Student Reviews</h5>
+
+                    @if(session('success'))
+                        <div class="alert alert-success">{{ session('success') }}</div>
+                    @endif
+
+                    @forelse(($course->reviews ?? collect()) as $review)
+
+                        <div class="border rounded p-3 mb-3">
+
+                            <strong>{{ $review->name }}</strong>
+
+                            <div class="text-warning">
+                                @for($i = 1; $i <= 5; $i++)
+                                    {{ $i <= $review->rating ? '⭐' : '☆' }}
+                                @endfor
+                            </div>
+
+                            <p class="mb-0">{{ $review->comment }}</p>
+
+                        </div>
+
+                    @empty
+
+                        <div class="alert alert-light border">
+                            No reviews yet. Be the first to review this course.
+                        </div>
+
+                    @endforelse
+
+                    <hr>
+
+                    <form action="{{ route('course.review') }}" method="POST">
+                        @csrf
+
+                        <input type="hidden" name="course_id" value="{{ $course->id }}">
+
+                        <input type="text" name="name" class="form-control mb-2"
+                               placeholder="Your Name" required>
+
+                        <select name="rating" class="form-select mb-2" style="max-width:200px;" required>
+                            <option value="">Select Rating</option>
+                            <option value="1">⭐ 1 Star</option>
+                            <option value="2">⭐⭐ 2 Stars</option>
+                            <option value="3">⭐⭐⭐ 3 Stars</option>
+                            <option value="4">⭐⭐⭐⭐ 4 Stars</option>
+                            <option value="5">⭐⭐⭐⭐⭐ 5 Stars</option>
+                        </select>
+
+                        <textarea name="comment" class="form-control mb-2" rows="3"
+                                  placeholder="Write your review here..." required></textarea>
+
+                        <button type="submit" class="btn btn-warning fw-bold">
+                            Submit Review
+                        </button>
+
+                    </form>
+
+                </div>
+
             </div>
-        @endif
+        </div>
 
     </div>
-</section>
+</div>
+
+
+{{-- YOU MAY LIKE SECTION --}}
+<div class="container-fluid mt-5 mb-5">
+    <h4 class="fw-bold mb-1">YOU MAY LIKE</h4>
+    <hr style="width:40px; border:2px solid black; margin-top:0;">
+
+    @if($relatedCourses->count())
+
+        <div class="you-may-like-wrapper position-relative mt-3">
+
+            <div class="you-may-like-slider" id="youMayLikeSlider">
+
+                @foreach($relatedCourses as $rc)
+
+                    @php
+                        $rcAvgRating = ($rc->reviews && $rc->reviews->count())
+                            ? round($rc->reviews->avg('rating'))
+                            : 5;
+                    @endphp
+
+                    <div class="slider-card">
+                        <a href="{{ url('/courses/'.$rc->slug) }}" class="text-decoration-none text-dark">
+                            <div class="card h-100 shadow-sm border-0">
+
+                                @if($rc->image)
+                                    <img src="{{ resolveMediaPath($rc->image, 'image') }}"
+                                         class="card-img-top" style="height:180px; object-fit:cover;">
+                                @endif
+
+                                <div class="card-body">
+                                    <h6 class="fw-bold">{{ $rc->short_title ?? $rc->title }}</h6>
+                                    <div class="d-flex align-items-center gap-2 text-muted mt-2">
+                                        <img src="https://ui-avatars.com/api/?name=UF&size=30&background=orange&color=fff"
+                                             class="rounded-circle" width="30">
+                                        <small>Ufadmin</small>
+                                        @if($rc->students)
+                                            <span class="ms-auto">👥 {{ $rc->students }}</span>
+                                        @endif
+                                    </div>
+                                    <div class="text-warning mt-2">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            {{ $i <= $rcAvgRating ? '⭐' : '☆' }}
+                                        @endfor
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                @endforeach
+
+            </div>
+
+        </div>
+
+    @else
+
+        <p class="text-muted">No related courses found.</p>
+
+    @endif
+
+</div>
+
+@include('partials.course-show-scripts')
+@include('partials.pdf-login-alert-script')
 
 @include('layouts.footer')

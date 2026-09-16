@@ -72,6 +72,7 @@
                         <tr>
 
                             <th>#</th>
+                            <th>Image</th>
                             <th>Title</th>
                             <th>Category</th>
                             <th>Teacher</th>
@@ -94,6 +95,19 @@
 
                                 <td data-label="#">
                                     {{ $index + 1 }}
+                                </td>
+
+
+                                <td data-label="Image">
+                                    @if($course->image)
+                                        <img src="{{ resolveMediaPath($course->image, 'image') }}"
+                                             alt="{{ $course->title }}"
+                                             width="60"
+                                             height="60"
+                                             style="object-fit:cover; border-radius:6px;">
+                                    @else
+                                        <span class="text-muted small">No Image</span>
+                                    @endif
                                 </td>
 
 
@@ -189,7 +203,7 @@
 
                             <tr>
 
-                                <td colspan="9"
+                                <td colspan="10"
                                     class="text-center text-muted admin-empty-state">
 
                                     <i class="bi bi-mortarboard"

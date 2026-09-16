@@ -393,35 +393,25 @@ public function storeCourse(Request $request)
         'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         'teacher_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
 
+        'lessons' => 'nullable|array',
+        'lessons.*.title' => 'nullable|string|max:255',
+        'lessons.*.pdf_file' => 'nullable|mimes:pdf|max:10240',
+
     ]);
 
     $slug = Str::slug($validated['title']);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Upload Course Image
-    |--------------------------------------------------------------------------
-    */
-
     $imagePath = '';
-
     if ($request->hasFile('image')) {
         $imagePath = $request->file('image')->store('courses/images', 'public');
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Upload Teacher Image
-    |--------------------------------------------------------------------------
-    */
-
     $teacherImagePath = '';
-
     if ($request->hasFile('teacher_image')) {
         $teacherImagePath = $request->file('teacher_image')->store('courses/teachers', 'public');
     }
 
-    DB::table('courses')->insert([
+    $courseId = DB::table('courses')->insertGetId([
 
         'status' => $validated['status'] ?? 1,
         'title' => $validated['title'],
@@ -446,12 +436,43 @@ public function storeCourse(Request $request)
 
     ]);
 
+    /*
+    |--------------------------------------------------------------------------
+    | Save Lessons (Curriculum)
+    |--------------------------------------------------------------------------
+    */
+
+    if ($request->has('lessons')) {
+
+        foreach ($request->lessons as $index => $lesson) {
+
+            if (empty($lesson['title'])) {
+                continue;
+            }
+
+            $pdfPath = null;
+
+            if ($request->hasFile("lessons.$index.pdf_file")) {
+                $pdfPath = $request->file("lessons.$index.pdf_file")
+                    ->store('courses/lessons', 'public');
+            }
+
+            DB::table('course_lessons')->insert([
+                'course_id' => $courseId,
+                'title' => $lesson['title'],
+                'pdf' => $pdfPath,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+        }
+
+    }
+
     return redirect()
         ->route('admin.courses')
         ->with('success', 'Course added successfully.');
 }
-
-
     /*
     |--------------------------------------------------------------------------
     | DELETE COURSE
