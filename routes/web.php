@@ -158,16 +158,11 @@ Route::prefix('admin')
         )->name('students.applications');
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | DELETE STUDENT
-        |--------------------------------------------------------------------------
-        */
-
         Route::delete(
             '/students/{id}',
             [AdminController::class, 'deleteStudent']
         )->name('students.delete');
+
 
         Route::get(
             '/students/create',
@@ -179,16 +174,19 @@ Route::prefix('admin')
             '/students',
             [AdminController::class, 'storeStudent']
         )->name('students.store');
-        Route::get('/students/manage', [AdminController::class, 'manageStudentAccount'])
-    ->name('students.manage');
 
-Route::put('/students/manage', [AdminController::class, 'updateStudentAccount'])
-    ->name('students.manage.update');
-     /*
-        |--------------------------------------------------------------------------
-        | Manage students
-        |--------------------------------------------------------------------------
-        */
+
+        Route::get(
+            '/students/manage',
+            [AdminController::class, 'manageStudentAccount']
+        )->name('students.manage');
+
+
+        Route::put(
+            '/students/manage',
+            [AdminController::class, 'updateStudentAccount']
+        )->name('students.manage.update');
+
 
         /*
         |--------------------------------------------------------------------------
@@ -214,31 +212,30 @@ Route::put('/students/manage', [AdminController::class, 'updateStudentAccount'])
         )->name('teachers.store');
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | DELETE TEACHER
-        |--------------------------------------------------------------------------
-        */
-
         Route::delete(
             '/teachers/{id}',
             [AdminController::class, 'deleteTeacher']
         )->name('teachers.delete');
 
+
         Route::get(
             '/teachers/assigned-courses',
             [AdminController::class, 'assignedCourses']
         )->name('teachers.assigned');
- /*
-        |--------------------------------------------------------------------------
-        | Manage teacher
-        |--------------------------------------------------------------------------
-        */
-Route::get('/teachers/manage', [AdminController::class, 'manageTeacherAccount'])
-    ->name('teachers.manage');
 
-Route::put('/teachers/manage', [AdminController::class, 'updateTeacherAccount'])
-    ->name('teachers.manage.update');
+
+        Route::get(
+            '/teachers/manage',
+            [AdminController::class, 'manageTeacherAccount']
+        )->name('teachers.manage');
+
+
+        Route::put(
+            '/teachers/manage',
+            [AdminController::class, 'updateTeacherAccount']
+        )->name('teachers.manage.update');
+
+
         /*
         |--------------------------------------------------------------------------
         | Courses
@@ -263,12 +260,6 @@ Route::put('/teachers/manage', [AdminController::class, 'updateTeacherAccount'])
         )->name('courses.store');
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | DELETE COURSE
-        |--------------------------------------------------------------------------
-        */
-
         Route::delete(
             '/courses/{id}',
             [AdminController::class, 'deleteCourse']
@@ -285,6 +276,25 @@ Route::put('/teachers/manage', [AdminController::class, 'updateTeacherAccount'])
             '/courses/students',
             [AdminController::class, 'courseStudents']
         )->name('courses.students');
+
+
+        Route::get(
+            '/courses/{courseId}/curriculum/create',
+            [AdminController::class, 'createCurriculumItem']
+        )->name('curriculum.create');
+
+
+        Route::post(
+            '/courses/{courseId}/curriculum',
+            [AdminController::class, 'storeCurriculumItem']
+        )->name('curriculum.store');
+
+
+        Route::delete(
+            '/curriculum/{id}',
+            [AdminController::class, 'deleteCurriculumItem']
+        )->name('curriculum.delete');
+
 
         /*
         |--------------------------------------------------------------------------
@@ -309,12 +319,6 @@ Route::put('/teachers/manage', [AdminController::class, 'updateTeacherAccount'])
             [AdminController::class, 'storeBook']
         )->name('books.store');
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | DELETE BOOK
-        |--------------------------------------------------------------------------
-        */
 
         Route::delete(
             '/books/{id}',
@@ -342,7 +346,7 @@ Route::put('/teachers/manage', [AdminController::class, 'updateTeacherAccount'])
 
         /*
         |--------------------------------------------------------------------------
-        | Management
+        | Pricing
         |--------------------------------------------------------------------------
         */
 
@@ -402,44 +406,50 @@ Route::put('/teachers/manage', [AdminController::class, 'updateTeacherAccount'])
 
         /*
         |--------------------------------------------------------------------------
-        | Certificate / Settings
+        | Certificates
         |--------------------------------------------------------------------------
         */
-Route::get(
-    '/certificates',
-    [AdminController::class, 'certificates']
-)->name('certificates');
-
-
-Route::post(
-    '/certificates',
-    [AdminController::class, 'storeCertificate']
-)->name('certificates.store');
-
-
-Route::delete(
-    '/certificates/{id}',
-    [AdminController::class, 'deleteCertificate']
-)->name('certificates.delete');
 
         Route::get(
-    '/settings',
-    [AdminController::class, 'settings']
-)->name('settings');
+            '/certificates',
+            [AdminController::class, 'certificates']
+        )->name('certificates');
 
 
-Route::put(
-    '/settings/account',
-    [AdminController::class, 'updateAccount']
-)->name('settings.account');
+        Route::post(
+            '/certificates',
+            [AdminController::class, 'storeCertificate']
+        )->name('certificates.store');
 
 
-Route::put(
-    '/settings/general',
-    [AdminController::class, 'updateGeneralSettings']
-)->name('settings.general');
+        Route::delete(
+            '/certificates/{id}',
+            [AdminController::class, 'deleteCertificate']
+        )->name('certificates.delete');
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | Settings
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/settings',
+            [AdminController::class, 'settings']
+        )->name('settings');
+
+
+        Route::put(
+            '/settings/account',
+            [AdminController::class, 'updateAccount']
+        )->name('settings.account');
+
+
+        Route::put(
+            '/settings/general',
+            [AdminController::class, 'updateGeneralSettings']
+        )->name('settings.general');
 
     });
 
@@ -449,6 +459,7 @@ Route::put(
 | TEACHER
 |--------------------------------------------------------------------------
 */
+
 Route::middleware(['role:teacher'])
     ->prefix('teacher')
     ->name('teacher.')
@@ -477,7 +488,33 @@ Route::middleware(['role:teacher'])
             [TeacherController::class, 'books']
         )->name('books');
 
+
+        Route::get(
+            '/live-classes',
+            [TeacherController::class, 'liveClasses']
+        )->name('live-classes');
+
+
+        Route::get(
+            '/live-classes/create',
+            [TeacherController::class, 'createLiveClass']
+        )->name('live-classes.create');
+
+
+        Route::post(
+            '/live-classes',
+            [TeacherController::class, 'storeLiveClass']
+        )->name('live-classes.store');
+
+
+        Route::delete(
+            '/live-classes/{id}',
+            [TeacherController::class, 'deleteLiveClass']
+        )->name('live-classes.delete');
+
     });
+
+
 /*
 |--------------------------------------------------------------------------
 | USER
@@ -505,6 +542,12 @@ Route::middleware(['role:user'])
             '/books',
             [StudentPanelController::class, 'books']
         )->name('books');
+
+
+        Route::get(
+            '/live-classes',
+            [StudentPanelController::class, 'liveClasses']
+        )->name('live-classes');
 
     });
 
@@ -611,34 +654,6 @@ Route::get(
     [PricingController::class, 'index']
 )->name('pricing');
 
-Route::get(
-    '/contact-messages',
-    [AdminController::class, 'contactMessages']
-)->name('contact');
-
-Route::prefix('admin')
-    ->name('admin.')
-    ->middleware(['admin'])
-    ->group(function () {
-
-
-        Route::get(
-            '/about/certificates',
-            [AdminController::class, 'certificates']
-        )->name('about.certificates');
-
-
-        Route::post(
-            '/about/certificates',
-            [AdminController::class, 'storeCertificate']
-        )->name('about.certificates.store');
-
-
-        Route::delete(
-            '/about/certificates/{id}',
-            [AdminController::class, 'deleteCertificate']
-        )->name('about.certificates.delete');
-    });
 
 /*
 |--------------------------------------------------------------------------
@@ -662,41 +677,3 @@ Route::get(
     '/blog/{slug}',
     [BlogController::class, 'show']
 )->name('blog.show');
-/*
-|--------------------------------------------------------------------------
-| Teachers
-|--------------------------------------------------------------------------
-*/
-Route::middleware(['role:teacher'])
-    ->prefix('teacher')
-    ->name('teacher.')
-    ->group(function () {
-
-        Route::get(
-            '/dashboard',
-            [TeacherController::class, 'dashboard']
-        )->name('dashboard');
-
-
-        Route::get(
-            '/my-courses',
-            [TeacherController::class, 'myCourses']
-        )->name('courses');
-
-
-        Route::get(
-            '/my-students',
-            [TeacherController::class, 'myStudents']
-        )->name('students');
-
-
-        Route::get(
-            '/profile',
-            [TeacherController::class, 'profile']
-        )->name('profile');
-        Route::put(
-    '/profile',
-    [TeacherController::class, 'updateProfile']
-)->name('profile.update');
-
-    });

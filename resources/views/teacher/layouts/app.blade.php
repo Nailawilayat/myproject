@@ -58,6 +58,12 @@
     <span>Books</span>
 </a>
 
+<a href="{{ route('teacher.live-classes') }}"
+   class="{{ request()->routeIs('teacher.live-classes*') ? 'active' : '' }}">
+    <i class="bi bi-camera-video-fill"></i>
+    <span>Live Classes</span>
+</a>
+
 <form action="{{ route('logout') }}" method="POST" class="mt-2">
     @csrf
     <button type="submit"

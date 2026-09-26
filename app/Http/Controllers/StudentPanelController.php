@@ -55,7 +55,7 @@ class StudentPanelController extends Controller
 
         $booksCount = DB::table('books')->count();
 
-        return view('student.dashboard', [
+        return view('students.dashboard', [
             'studentName' => session('student_name'),
             'student' => $student,
             'courseName' => $courseName,
@@ -104,5 +104,38 @@ class StudentPanelController extends Controller
             'student.books',
             compact('books')
         );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LIVE CLASSES
+    |--------------------------------------------------------------------------
+    */
+
+    public function liveClasses()
+    {
+        $student = DB::table('students')
+            ->where('id', session('student_id'))
+            ->first();
+
+        $courseName = $student->course ?? null;
+
+        $classes = collect();
+
+        if ($courseName) {
+
+            $searchTerm = strtolower(trim($courseName));
+
+            $classes = DB::table('live_classes')
+                ->join('courses', 'live_classes.course_id', '=', 'courses.id')
+                ->whereRaw('LOWER(courses.title) LIKE ?', ['%' . $searchTerm . '%'])
+                ->select('live_classes.*', 'courses.title as course_title')
+                ->orderBy('scheduled_at', 'asc')
+                ->get();
+
+        }
+
+        return view('student.live-classes', compact('classes'));
     }
 }

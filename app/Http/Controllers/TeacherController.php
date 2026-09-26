@@ -116,4 +116,68 @@ class TeacherController extends Controller
             compact('books')
         );
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LIVE CLASSES
+    |--------------------------------------------------------------------------
+    */
+
+    public function liveClasses()
+    {
+        $teacherName = session('student_name');
+
+        $classes = DB::table('live_classes')
+            ->where('teacher_name', $teacherName)
+            ->orderBy('scheduled_at', 'desc')
+            ->get();
+
+        return view('teacher.live-classes', compact('classes'));
+    }
+
+
+    public function createLiveClass()
+    {
+        $courses = $this->getMyCourses();
+
+        return view('teacher.live-classes-create', compact('courses'));
+    }
+
+
+    public function storeLiveClass(Request $request)
+    {
+        $validated = $request->validate([
+            'course_id' => 'required|integer',
+            'title' => 'required|string|max:255',
+            'platform' => 'required|string|max:50',
+            'meeting_link' => 'required|url',
+            'scheduled_at' => 'required|date',
+            'duration_minutes' => 'required|integer|min:15',
+        ]);
+
+        DB::table('live_classes')->insert([
+            'course_id' => $validated['course_id'],
+            'teacher_name' => session('student_name'),
+            'title' => $validated['title'],
+            'platform' => $validated['platform'],
+            'meeting_link' => $validated['meeting_link'],
+            'scheduled_at' => $validated['scheduled_at'],
+            'duration_minutes' => $validated['duration_minutes'],
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return redirect()
+            ->route('teacher.live-classes')
+            ->with('success', 'Live class scheduled successfully.');
+    }
+
+
+    public function deleteLiveClass($id)
+    {
+        DB::table('live_classes')->where('id', $id)->delete();
+
+        return back()->with('success', 'Live class removed.');
+    }
 }

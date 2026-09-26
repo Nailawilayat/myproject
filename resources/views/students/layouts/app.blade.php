@@ -49,6 +49,12 @@
                 <span>Books</span>
             </a>
 
+            <a href="{{ route('user.live-classes') }}"
+               class="{{ request()->routeIs('user.live-classes') ? 'active' : '' }}">
+                <i class="bi bi-camera-video-fill"></i>
+                <span>Live Classes</span>
+            </a>
+
             <div class="student-menu-title">Account</div>
 
             <form action="{{ route('logout') }}" method="POST" class="mt-2">
