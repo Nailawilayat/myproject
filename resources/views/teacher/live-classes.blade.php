@@ -24,12 +24,29 @@
     @forelse($classes as $class)
 
         <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100 stat-card">
+            <div class="card border-0 shadow-sm h-100 stat-card
+                {{ $class->status === 'live' ? 'border-danger border-2' : '' }}
+                {{ $class->status === 'time_over' ? 'opacity-75' : '' }}">
                 <div class="card-body">
 
                     <div class="stat-icon-box icon-bg-primary mb-3">
                         <i class="bi bi-camera-video-fill"></i>
                     </div>
+
+                    {{-- Status badge --}}
+                    @if($class->status === 'live')
+                        <span class="badge bg-danger mb-2">
+                            <i class="bi bi-broadcast"></i> LIVE NOW
+                        </span>
+                    @elseif($class->status === 'time_over')
+                        <span class="badge bg-secondary mb-2">
+                            <i class="bi bi-clock-history"></i> TIME OVER
+                        </span>
+                    @else
+                        <span class="badge bg-info text-dark mb-2">
+                            <i class="bi bi-clock"></i> UPCOMING
+                        </span>
+                    @endif
 
                     <h6 class="fw-bold mb-1">{{ $class->title }}</h6>
                     <p class="text-muted small mb-2">
@@ -38,9 +55,18 @@
                     </p>
                     <p class="text-muted small mb-3">Platform: {{ $class->platform }}</p>
 
-                    <a href="{{ $class->meeting_link }}" target="_blank" class="btn btn-sm btn-primary w-100 mb-2">
-                        <i class="bi bi-box-arrow-up-right"></i> Join / Start
-                    </a>
+                    {{-- Join/Start button: time over ho to link disable, warna active --}}
+                    @if($class->status === 'time_over')
+                        <button type="button" class="btn btn-sm btn-secondary w-100 mb-2" disabled>
+                            <i class="bi bi-slash-circle"></i> Time Over
+                        </button>
+                    @else
+                        <a href="{{ $class->meeting_link }}" target="_blank"
+                           class="btn btn-sm {{ $class->status === 'live' ? 'btn-danger' : 'btn-primary' }} w-100 mb-2">
+                            <i class="bi bi-box-arrow-up-right"></i>
+                            {{ $class->status === 'live' ? 'Start Live Class' : 'Join / Start' }}
+                        </a>
+                    @endif
 
                     <form action="{{ route('teacher.live-classes.delete', $class->id) }}"
                           method="POST"

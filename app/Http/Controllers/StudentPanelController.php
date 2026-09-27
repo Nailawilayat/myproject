@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class StudentPanelController extends Controller
 {
@@ -81,7 +82,7 @@ class StudentPanelController extends Controller
 
         $matchedCourse = $this->findMatchingCourse($courseName);
 
-        return view('student.course', [
+        return view('students.course', [
             'courseName' => $courseName,
             'matchedCourse' => $matchedCourse,
         ]);
@@ -101,7 +102,7 @@ class StudentPanelController extends Controller
             ->get();
 
         return view(
-            'student.books',
+            'students.books',
             compact('books')
         );
     }
@@ -112,7 +113,6 @@ class StudentPanelController extends Controller
     | LIVE CLASSES
     |--------------------------------------------------------------------------
     */
-
     public function liveClasses()
     {
         $student = DB::table('students')
@@ -132,10 +132,43 @@ class StudentPanelController extends Controller
                 ->whereRaw('LOWER(courses.title) LIKE ?', ['%' . $searchTerm . '%'])
                 ->select('live_classes.*', 'courses.title as course_title')
                 ->orderBy('scheduled_at', 'asc')
-                ->get();
-
+                ->get()
+                ->map(function ($class) {
+                    $class->status = $this->getClassStatus($class->scheduled_at, $class->duration_minutes);
+                    // backward compatibility, in case any old blade still checks is_live
+                    $class->is_live = $class->status === 'live';
+                    return $class;
+                })
+                // "Upcoming Live Classes" page se time-over ho chuki classes hata do
+                ->reject(function ($class) {
+                    return $class->status === 'time_over';
+                })
+                ->values();
         }
 
-        return view('student.live-classes', compact('classes'));
+        return view('students.live-classes', compact('classes'));
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HELPER: Determine class status -> upcoming | live | time_over
+    |--------------------------------------------------------------------------
+    */
+    private function getClassStatus($scheduledAt, $durationMinutes)
+    {
+        $start = Carbon::parse($scheduledAt);
+        $end = $start->copy()->addMinutes($durationMinutes);
+        $now = Carbon::now();
+
+        if ($now->lt($start)) {
+            return 'upcoming';
+        }
+
+        if ($now->between($start, $end)) {
+            return 'live';
+        }
+
+        return 'time_over';
     }
 }

@@ -102,3 +102,6 @@
 </div>
 
 @endsection
+@push('scripts')
+    <script src="{{ asset('js/class-status.js') }}"></script>
+@endpush

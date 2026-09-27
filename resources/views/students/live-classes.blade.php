@@ -1,4 +1,4 @@
-@extends('student.layouts.app')
+@extends('students.layouts.app')
 
 @section('title', 'Live Classes')
 @section('page-title', 'Live Classes')
@@ -12,10 +12,17 @@
 
         @forelse($classes as $class)
 
-            <div class="card border-0 bg-light mb-3">
+            <div class="card border-0 {{ $class->is_live ? 'border-danger border-2' : 'bg-light' }} mb-3">
                 <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-3">
 
                     <div>
+
+                        @if($class->is_live)
+                            <span class="badge bg-danger mb-2">
+                                <i class="bi bi-broadcast"></i> LIVE NOW
+                            </span>
+                        @endif
+
                         <h6 class="fw-bold mb-1">{{ $class->title }}</h6>
                         <small class="text-muted">
                             {{ $class->course_title }} &bull;
@@ -23,8 +30,10 @@
                         </small>
                     </div>
 
-                    <a href="{{ $class->meeting_link }}" target="_blank" class="btn btn-warning">
-                        <i class="bi bi-camera-video-fill"></i> Join Class
+                    <a href="{{ $class->meeting_link }}" target="_blank"
+                       class="btn {{ $class->is_live ? 'btn-danger' : 'btn-warning' }}">
+                        <i class="bi bi-camera-video-fill"></i>
+                        {{ $class->is_live ? 'Join Now' : 'Join Class' }}
                     </a>
 
                 </div>

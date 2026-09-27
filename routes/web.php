@@ -152,10 +152,7 @@ Route::prefix('admin')
         )->name('students.enrolled');
 
 
-        Route::get(
-            '/students/applications',
-            [AdminController::class, 'applications']
-        )->name('students.applications');
+      
 
 
         Route::delete(
@@ -446,10 +443,7 @@ Route::prefix('admin')
         )->name('settings.account');
 
 
-        Route::put(
-            '/settings/general',
-            [AdminController::class, 'updateGeneralSettings']
-        )->name('settings.general');
+      
 
     });
 

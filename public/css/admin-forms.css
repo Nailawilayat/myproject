@@ -796,23 +796,23 @@ body {
 
 /* Dropdown */
 
+/* ================= SUBMENU ITEMS - LEFT ALIGN ================= */
+
 .admin-submenu {
-    padding-left: 25px;
+    padding-left: 15px;  /* 25px tha, kam kiya */
 }
 
 .admin-submenu a {
     font-size: 13px;
     padding: 9px 15px;
     color: #aaa;
-}
-
-.admin-submenu a.active {
-    background: #d6a84f;
-    color: #111;
+    justify-content: flex-start;  /* ← ye add karein */
+    gap: 10px;
 }
 
 .admin-submenu a i {
     font-size: 7px;
+    flex-shrink: 0;  /* ← ye add karein */
 }
 
 /* ================= MAIN CONTENT ================= */
@@ -1310,9 +1310,6 @@ body {
     }
 
 }
-
-
-
 /* ================================
    CURRICULUM PAGE
    ================================ */

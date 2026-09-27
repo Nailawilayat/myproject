@@ -456,7 +456,6 @@ class StudentController extends Controller
             'intended_url'
         ]);
 
-
         return redirect()
             ->route('login')
             ->with(

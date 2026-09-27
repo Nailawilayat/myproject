@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class TeacherController extends Controller
 {
@@ -23,6 +24,29 @@ class TeacherController extends Controller
                 return strtolower(trim($course->teacher ?? '')) === $teacherName;
             })
             ->values();
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HELPER: Determine class status -> upcoming | live | time_over
+    |--------------------------------------------------------------------------
+    */
+    private function getClassStatus($scheduledAt, $durationMinutes)
+    {
+        $start = Carbon::parse($scheduledAt);
+        $end = $start->copy()->addMinutes($durationMinutes);
+        $now = Carbon::now();
+
+        if ($now->lt($start)) {
+            return 'upcoming';
+        }
+
+        if ($now->between($start, $end)) {
+            return 'live';
+        }
+
+        return 'time_over';
     }
 
 
@@ -131,7 +155,13 @@ class TeacherController extends Controller
         $classes = DB::table('live_classes')
             ->where('teacher_name', $teacherName)
             ->orderBy('scheduled_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($class) {
+                $class->status = $this->getClassStatus($class->scheduled_at, $class->duration_minutes);
+                // backward compatibility, in case any old blade still checks is_live
+                $class->is_live = $class->status === 'live';
+                return $class;
+            });
 
         return view('teacher.live-classes', compact('classes'));
     }

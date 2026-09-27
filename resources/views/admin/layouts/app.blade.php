@@ -24,6 +24,33 @@
     {{-- Admin Layout Styles --}}
     <link rel="stylesheet" href="{{ asset('css/admin-forms.css') }}">
 
+    {{-- Sidebar submenu overrides: left-aligned text + hover behaviour --}}
+    <style>
+
+        /* Force submenu links to align left instead of right/centered */
+        .admin-submenu a {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            text-align: left;
+            gap: 8px;
+        }
+
+        .admin-submenu a i {
+            font-size: 6px;
+            flex-shrink: 0;
+        }
+
+        .admin-menu-title + a .chevron {
+            transition: transform 0.2s ease;
+        }
+
+        .admin-menu-title + a[aria-expanded="true"] .chevron {
+            transform: rotate(90deg);
+        }
+
+    </style>
+
     @stack('styles')
 
 </head>
@@ -89,12 +116,6 @@
        class="{{ request()->routeIs('admin.students.enrolled') ? 'active' : '' }}">
         <i class="bi bi-circle-fill"></i>
         Enrolled Students
-    </a>
-
-    <a href="{{ route('admin.students.applications') }}"
-       class="{{ request()->routeIs('admin.students.applications') ? 'active' : '' }}">
-        <i class="bi bi-circle-fill"></i>
-        Applications
     </a>
 
     <a href="{{ route('admin.students.manage') }}"
@@ -174,12 +195,6 @@
                    class="{{ request()->routeIs('admin.courses.create') ? 'active' : '' }}">
                     <i class="bi bi-circle-fill"></i>
                     Add Course
-                </a>
-
-                <a href="{{ route('admin.courses.curriculum') }}"
-                   class="{{ request()->routeIs('admin.courses.curriculum') ? 'active' : '' }}">
-                    <i class="bi bi-circle-fill"></i>
-                    Curriculum
                 </a>
 
                 <a href="{{ route('admin.courses.students') }}"
@@ -359,6 +374,51 @@
                     closeSidebar();
                 }
             });
+        });
+
+        // ================= HOVER-TO-OPEN SUBMENUS (desktop only) =================
+        // Mobile/touch screens still use click (Bootstrap's default collapse
+        // behaviour via data-bs-toggle="collapse"), since touch devices have no hover.
+
+        function isDesktop() {
+            return window.innerWidth > 767;
+        }
+
+        document.querySelectorAll('.admin-menu-title').forEach(function (titleEl) {
+
+            const toggleLink = titleEl.nextElementSibling; // the <a data-bs-toggle="collapse">
+            if (!toggleLink || !toggleLink.hasAttribute('data-bs-toggle')) return;
+
+            const targetSelector = toggleLink.getAttribute('href'); // e.g. "#studentsMenu"
+            const submenu = document.querySelector(targetSelector);
+            if (!submenu) return;
+
+            const collapseInstance = bootstrap.Collapse.getOrCreateInstance(submenu, { toggle: false });
+
+            let closeTimeout = null;
+
+            // Hovering anywhere in this cluster (title, toggle link, submenu) keeps it open
+            const group = [titleEl, toggleLink, submenu];
+
+            function openMenu() {
+                if (!isDesktop()) return;
+                clearTimeout(closeTimeout);
+                collapseInstance.show();
+            }
+
+            function scheduleClose() {
+                if (!isDesktop()) return;
+                clearTimeout(closeTimeout);
+                closeTimeout = setTimeout(function () {
+                    collapseInstance.hide();
+                }, 150); // small delay so moving mouse from title -> submenu doesn't flicker-close
+            }
+
+            group.forEach(function (el) {
+                el.addEventListener('mouseenter', openMenu);
+                el.addEventListener('mouseleave', scheduleClose);
+            });
+
         });
 
     </script>
