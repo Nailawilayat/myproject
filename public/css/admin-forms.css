@@ -812,7 +812,7 @@ body {
 
 .admin-submenu a i {
     font-size: 7px;
-    flex-shrink: 0;  /* ← ye add karein */
+    flex-shrink: 0;  
 }
 
 /* ================= MAIN CONTENT ================= */

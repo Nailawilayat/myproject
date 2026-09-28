@@ -75,26 +75,33 @@
 
         <div class="row g-3">
 
-            <div class="col-md-4">
+            <div class="col-md-6 col-xl-3">
                 <a href="{{ route('teacher.courses') }}" class="btn btn-outline-primary w-100 py-3">
                     <i class="bi bi-book me-2"></i>
                     View My Courses
                 </a>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-6 col-xl-3">
                 <a href="{{ route('teacher.students') }}" class="btn btn-outline-success w-100 py-3">
                     <i class="bi bi-people me-2"></i>
                     View My Students
                 </a>
             </div>
 
-           <div class="col-md-4">
-    <a href="{{ route('teacher.books') }}" class="btn btn-outline-dark w-100 py-3">
-        <i class="bi bi-journal-bookmark me-2"></i>
-        View Books
-    </a>
-</div>
+            <div class="col-md-6 col-xl-3">
+                <a href="{{ route('teacher.live-classes') }}" class="btn btn-outline-danger w-100 py-3">
+                    <i class="bi bi-camera-video me-2"></i>
+                    Live Classes
+                </a>
+            </div>
+
+            <div class="col-md-6 col-xl-3">
+                <a href="{{ route('teacher.books') }}" class="btn btn-outline-dark w-100 py-3">
+                    <i class="bi bi-journal-bookmark me-2"></i>
+                    View Books
+                </a>
+            </div>
 
         </div>
 
